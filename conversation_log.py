@@ -4,7 +4,11 @@ from datetime import datetime
 class Log():
     def __init__(self):
         # Use Hugging Face Spaces persistent storage and make file private
-        self.filename = "/data/.conversation.csv"
+        import os
+        data_dir = "/data"
+        if not os.path.exists(data_dir):
+            os.makedirs(data_dir)
+        self.filename = os.path.join(data_dir, ".conversation.csv")
 
     def log(self, message):
         with open(self.filename, "a") as f:
