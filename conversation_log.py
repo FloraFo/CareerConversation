@@ -3,7 +3,8 @@ from datetime import datetime
 
 class Log():
     def __init__(self):
-        self.filename = "conversation.csv"
+        # Use Hugging Face Spaces persistent storage and make file private
+        self.filename = "/data/.conversation.csv"
 
     def log(self, message):
         with open(self.filename, "a") as f:
