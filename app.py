@@ -7,6 +7,7 @@ from pypdf import PdfReader
 import gradio as gr
 from tools import Tools
 from evaluation import Evaluator
+from conversation_log import Log
 
 load_dotenv(override=True)
 
@@ -15,8 +16,10 @@ class Me:
 
     def __init__(self):
         self.tools = Tools()
+        self.conv_logger = Log()
         self.gemini = OpenAI(base_url=os.getenv("GEMINI_BASE_URL"), api_key=os.getenv("GEMINI_API_KEY"))
         self.name = "Filomena Forina"
+        self.github = "https://github.com/FloraFo"
         reader = PdfReader("me/filoCV.pdf")
         self.linkedin = ""
         for page in reader.pages:
@@ -35,6 +38,7 @@ class Me:
             print(f"Tool called: {tool_name}", flush=True)
             tool = getattr(self.tools, tool_name, None)
             result = tool(**arguments) if tool else {}
+            print(f"Tool result: {result}", flush=True)
             results.append({"role": "tool","content": json.dumps(result),"tool_call_id": tool_call.id})
         return results
     
@@ -46,7 +50,7 @@ class Me:
         prompt += f"Be professional and engaging, as if talking to a potential client or future employer who came across the website. "
         prompt += f"If you don't know the answer to any question, use your record_unknown_question tool to record the question that you couldn't answer, even if it's about something trivial or unrelated to career. "
         prompt += f"If the user is engaging in discussion, try to steer them towards getting in touch via email; ask for their email and record it using your record_user_details tool. "
-        prompt += f"\n\n## Summary:\n{self.summary}\n\n## LinkedIn Profile:\n{self.linkedin}\n\n"
+        prompt += f"\n\n## Summary:\n{self.summary}\n\n## LinkedIn Profile:\n{self.linkedin}\n\n## GitHub Profile:\n{self.github}"
         prompt += f"With this context, please chat with the user, always staying in character as {self.name}."
         return prompt
 
@@ -81,6 +85,7 @@ class Me:
                     print(evaluation.feedback)
                     reply = self.rerun(reply, message, history, evaluation.feedback)
                 done = True
+        self.conv_logger.log_answer(question=message, answer=reply)
         return reply
     
 
