@@ -1,14 +1,17 @@
 import csv
+import os
+from huggingface_hub import HfApi
 from datetime import datetime
+
+from huggingface_hub import HfApi
 
 class Log():
     def __init__(self):
-        # Use Hugging Face Spaces persistent storage and make file private
-        import os
-        data_dir = "/data"
-        if not os.path.exists(data_dir):
-            os.makedirs(data_dir)
-        self.filename = os.path.join(data_dir, ".conversation.csv")
+        self.hf_token = os.getenv("HF_TOKEN")
+        if self.hf_token is None:
+            raise EnvironmentError("HF_TOKEN environment variable is not set. Please set it to your Hugging Face token.")
+        self.repo_id = "FiloF/data"
+        self.filename = "conversation.csv"
 
     def log(self, message):
         with open(self.filename, "a") as f:
@@ -69,3 +72,14 @@ class Log():
             if not file_exists:
                 writer.writeheader()
             writer.writerow(row)
+        self.upload_to_hub()
+
+    def upload_to_hub(self):
+        from huggingface_hub import HfApi
+        api = HfApi(token=self.hf_token)
+        api.upload_file(
+            path_or_fileobj=self.filename,
+            path_in_repo=".conversation.csv",
+            repo_id=self.repo_id,
+            repo_type="dataset",
+        )
