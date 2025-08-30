@@ -11,7 +11,7 @@ class Log():
         if self.hf_token is None:
             raise EnvironmentError("HF_TOKEN environment variable is not set. Please set it to your Hugging Face token.")
         self.repo_id = "FiloF/data"
-        self.filename = "conversation.csv"
+        self.filename = "conversation_"+ datetime.now().strftime("%Y-%m-%d") +".csv"
 
     def log(self, message):
         with open(self.filename, "a") as f:
@@ -79,7 +79,7 @@ class Log():
         api = HfApi(token=self.hf_token)
         api.upload_file(
             path_or_fileobj=self.filename,
-            path_in_repo=".conversation.csv",
+            path_in_repo="." + self.filename,
             repo_id=self.repo_id,
             repo_type="dataset",
         )
