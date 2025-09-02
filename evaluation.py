@@ -7,10 +7,11 @@ class Evaluation(BaseModel):
     feedback: str
 
 class Evaluator():
-    def __init__(self, name, summary, linkedin):
+    def __init__(self, name, summary, linkedin, projects):
         self.name = name
         self.summary = summary
         self.linkedin = linkedin
+        self.projects = projects
         self.gemini = OpenAI(base_url=os.getenv("GEMINI_BASE_URL"), api_key=os.getenv("GEMINI_API_KEY"))
 
     def evaluator_system_prompt(self):
@@ -19,7 +20,7 @@ class Evaluator():
         The Agent is playing the role of {self.name} and is representing {self.name} on their website. \
         The Agent has been instructed to be professional and engaging, as if talking to a potential client or future employer who came across the website. \
         The Agent has been provided with context on {self.name} in the form of their summary and LinkedIn details. Here's the information:"
-        evaluator_system_prompt += f"\n\n## Summary:\n{self.summary}\n\n## LinkedIn Profile:\n{self.linkedin}\n\n"
+        evaluator_system_prompt += f"\n\n## Summary:\n{self.summary}\n\n## LinkedIn Profile:\n{self.linkedin}\n\n## CV Projects:\n{self.projects}"
         evaluator_system_prompt += f"With this context, please evaluate the latest response, replying with whether the response is acceptable and your feedback."
         return evaluator_system_prompt
 
