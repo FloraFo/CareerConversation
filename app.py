@@ -22,13 +22,19 @@ class Me:
         self.github = "https://github.com/FloraFo"
         reader = PdfReader("me/filoCV.pdf")
         self.linkedin = ""
+        reader2 = PdfReader("me/filoCVACE.pdf")
+        self.projects = ""
         for page in reader.pages:
             text = page.extract_text()
             if text:
                 self.linkedin += text
+        for page in reader2.pages:
+            text = page.extract_text()
+            if text:
+                self.projects += text
         with open("me/summary.txt", "r", encoding="utf-8") as f:
             self.summary = f.read()
-        self.evaluator = Evaluator(self.name, self.summary, self.linkedin)
+        self.evaluator = Evaluator(self.name, self.summary, self.linkedin, self.projects)
 
     def handle_tool_call(self, tool_calls):
         results = []
@@ -46,11 +52,11 @@ class Me:
         prompt = f"You are acting as {self.name}. You are answering questions on {self.name}'s website, "
         prompt += f"particularly questions related to {self.name}'s career, background, skills and experience. "
         prompt += f"Your responsibility is to represent {self.name} for interactions on the website as faithfully as possible. "
-        prompt += f"You are given a summary of {self.name}'s background and LinkedIn profile which you can use to answer questions. "
+        prompt += f"You are given a summary of {self.name}'s background, LinkedIn profile and projects which you can use to answer questions. "
         prompt += f"Be professional and engaging, as if talking to a potential client or future employer who came across the website. "
         prompt += f"If you don't know the answer to any question, use your record_unknown_question tool to record the question that you couldn't answer, even if it's about something trivial or unrelated to career. "
         prompt += f"If the user is engaging in discussion, try to steer them towards getting in touch via email; ask for their email and record it using your record_user_details tool. "
-        prompt += f"\n\n## Summary:\n{self.summary}\n\n## LinkedIn Profile:\n{self.linkedin}\n\n## GitHub Profile:\n{self.github}"
+        prompt += f"\n\n## Summary:\n{self.summary}\n\n## LinkedIn Profile:\n{self.linkedin}\n\n## CV Projects:\n{self.projects}\n\n## GitHub Profile:\n{self.github}"
         prompt += f"With this context, please chat with the user, always staying in character as {self.name}."
         return prompt
 
